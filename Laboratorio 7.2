@@ -1,0 +1,59 @@
+PRACTICA 2 – SAMBA (Linux Server + Windows Cliente)
+
+Instalar Samba
+sudo dnf install samba samba-common samba-client -y
+sudo systemctl enable --now smb nmb
+
+Crear carpeta compartida
+sudo mkdir /srv/samba
+sudo chmod 777 /srv/samba
+
+Crear archivos:
+sudo touch Adrian{1..100}.txt
+
+Crear usuario y grupo Samba
+sudo useradd sambauser
+sudo smbpasswd -a sambauser
+
+Configurar /etc/samba/smb.conf
+Editar:
+sudo nano /etc/samba/smb.conf
+Agregar al final:
+[OS3_SHARE]
+   path = /srv/samba
+   writable = yes
+   browsable = yes
+   valid users = sambauser
+   read only = no
+
+Reiniciar Samba:
+sudo systemctl restart smb
+
+Activar los puertos
+sudo firewall-cmd --add-port=137 --permanent
+sudo firewall-cmd --add-port=139 --permanent
+sudo firewall-cmd --add-port=445 --permanent
+sudo firewall-cmd --reload
+
+Desactivar la seguridad
+sudo setenforce 0
+
+
+En Windows: Mapear Unidad
+Abrir File Explorer
+Click derecho → Map network drive
+Drive: elegir letra
+Folder:
+\\<IP_DEL_SERVIDOR>\OS3_SHARE
+Usuario: sambauser
+Debes ver los 100 archivos.
+
+Modificar Adrian99 desde Windows
+Abrir el archivo adrian99.txt
+
+Escribir:
+el zumzum de la carabela
+Guardar
+
+En Linux verificar:
+cat /srv/samba/adrian99.txt
