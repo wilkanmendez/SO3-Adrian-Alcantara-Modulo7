@@ -1,0 +1,54 @@
+# PRACTICA 1 – NFS (Servidor Linux + Cliente Linux)
+
+# Instalar NFS en el Servidor
+sudo dnf install nfs-utils -y    # RHEL/CentOS/Fedora
+sudo systemctl enable --now nfs-server
+
+# Crear carpeta OS3 con 100 archivos
+sudo mkdir /srv/OS3
+cd /srv/OS3
+sudo touch archivo{1..100}.txt
+
+# Asignar permisos
+sudo chown -R nobody:nobody /srv/OS3
+sudo chmod -R 755 /srv/OS3
+
+# Configurar exports
+# Editar:
+sudo nano /etc/exports
+# Agregar:
+/srv/OS3 *(rw,sync,no_root_squash)
+
+# Aplicar:
+sudo exportfs -ra
+
+# Activar el firewall y agregar los puertos
+sudo firewall-cmd --add-service=nfs --permanenet
+sudo firewall-cmd --add-service=npc-bind --permanenet
+sudo firewall-cmd --add-service=mountd --permanenet
+
+# Cliente Linux: instalar NFS
+sudo dnf install nfs-utils -y
+sudo mkdir /mnt/nfs
+
+# Descubrir export:
+showmount -e <IP_del_servidor>
+
+# Montar:
+sudo mount <IP_del_servidor>:/srv/OS3 /mnt/nfs
+
+# Ver archivos:
+ls /mnt/nfs
+
+# Montaje automático en /etc/fstab
+# Editar:
+sudo nano /etc/fstab
+# Agregar al final:
+<IP_del_servidor>:/srv/OS3   /mnt/nfs   nfs   defaults   0 0
+
+# Probar sin reiniciar:
+sudo mount -a
+
+# Reiniciar y comprobar:
+ls /mnt/nfs
+
